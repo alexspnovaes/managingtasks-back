@@ -37,7 +37,7 @@ func (h *TaskHandler) AddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.taskUseCase.CreateTask(input.Title)
+	createdTask, err := h.taskUseCase.CreateTask(input.Title)
 	if err != nil {
 		if err.Error() == "title cannot be empty" {
 			http.Error(w, "Title is required", http.StatusBadRequest)
@@ -47,7 +47,13 @@ func (h *TaskHandler) AddTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+
+	if err := json.NewEncoder(w).Encode(createdTask); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *TaskHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {

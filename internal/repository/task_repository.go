@@ -39,8 +39,19 @@ func (r *TaskRepositoryImpl) GetAllTasks() ([]entity.Task, error) {
 }
 
 func (r *TaskRepositoryImpl) CreateTask(task *entity.Task) error {
-	_, err := r.db.Exec("INSERT INTO tasks (title, completed) VALUES (?, ?)", task.Title, task.Completed)
-	return err
+	res, err := r.db.Exec("INSERT INTO tasks (title, completed) VALUES (?, ?)", task.Title, task.Completed)
+	if err != nil {
+		return err
+	}
+
+	lastID, err := res.LastInsertId()
+	if err != nil {
+		return err
+	}
+
+	task.ID = int(lastID)
+
+	return nil
 }
 
 func (r *TaskRepositoryImpl) UpdateTask(task *entity.Task) error {

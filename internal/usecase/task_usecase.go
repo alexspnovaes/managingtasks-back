@@ -18,12 +18,17 @@ func (uc *TaskUseCase) GetTasks() ([]entity.Task, error) {
 	return uc.taskRepo.GetAllTasks()
 }
 
-func (uc *TaskUseCase) CreateTask(title string) error {
+func (uc *TaskUseCase) CreateTask(title string) (*entity.Task, error) {
 	if title == "" {
-		return errors.New("title cannot be empty")
+		return nil, errors.New("title cannot be empty")
 	}
 	task := &entity.Task{Title: title, Completed: false}
-	return uc.taskRepo.CreateTask(task)
+	err := uc.taskRepo.CreateTask(task)
+	if err != nil {
+		return nil, err
+	}
+
+	return task, nil
 }
 
 func (uc *TaskUseCase) UpdateTask(id int, title string, completed bool) error {

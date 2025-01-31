@@ -32,14 +32,27 @@ func TestAddTask(t *testing.T) {
 	mockUseCase := usecase.NewTaskUseCase(mockRepo)
 	taskHandler := handler.NewTaskHandler(mockUseCase)
 
-	task := entity.Task{Title: "Test Task"}
-	body, _ := json.Marshal(task)
+	input := struct {
+		Title string `json:"title"`
+	}{
+		Title: "Test Task",
+	}
+
+	body, _ := json.Marshal(input)
 	req, _ := http.NewRequest("POST", "/tasks", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
+
 	res := httptest.NewRecorder()
 	taskHandler.AddTask(res, req)
 
 	assert.Equal(t, http.StatusCreated, res.Code)
+
+	var createdTask entity.Task
+	err := json.Unmarshal(res.Body.Bytes(), &createdTask)
+	assert.NoError(t, err, "Erro ao fazer unmarshal do response body")
+
+	assert.Equal(t, "Test Task", createdTask.Title)
+	assert.False(t, createdTask.Completed, "Por padrão, a task deve ser criada com completed=false")
 }
 
 func TestAddTaskWithEmptyTitle(t *testing.T) {
