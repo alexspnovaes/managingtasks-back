@@ -49,10 +49,10 @@ func TestAddTask(t *testing.T) {
 
 	var createdTask entity.Task
 	err := json.Unmarshal(res.Body.Bytes(), &createdTask)
-	assert.NoError(t, err, "Erro ao fazer unmarshal do response body")
+	assert.NoError(t, err, "Error unmarshalling response body")
 
 	assert.Equal(t, "Test Task", createdTask.Title)
-	assert.False(t, createdTask.Completed, "Por padrão, a task deve ser criada com completed=false")
+	assert.False(t, createdTask.Completed, "Completed should be false")
 }
 
 func TestAddTaskWithEmptyTitle(t *testing.T) {
